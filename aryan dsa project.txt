@@ -1,0 +1,124 @@
+// Free memory for event list
+    import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Event {
+    int day;
+    String description;
+
+    Event(int day, String description) {
+        this.day = day;
+        this.description = description;
+    }
+}
+
+public class CalendarApp{
+    static boolean isLeapYear(int year) {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    }
+
+    static int getStartDay(int year, int month) {
+        int day = 1, y = year, m = month;
+        if (m < 3) {
+            m += 12;
+            y -= 1;
+        }
+        return (day + (13 * (m + 1)) / 5 + y + (y / 4) - (y / 100) + (y / 400)) % 7;
+    }
+
+    static int getDaysInMonth(int year, int month) {
+        int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        if (month == 2 && isLeapYear(year)) return 29;
+        return daysInMonth[month - 1];
+    }
+
+    static void displayCalendar(int year, int month) {
+        String[] months = {"January", "February", "March", "April", "May", "June",
+                           "July", "August", "September", "October", "November", "December"};
+        int startDay = getStartDay(year, month);
+        int daysInMonth = getDaysInMonth(year, month);
+
+        System.out.printf("\n  ------------ %s %d ------------\n", months[month - 1], year);
+        System.out.println("  Sun  Mon  Tue  Wed  Thu  Fri  Sat");
+
+        for (int i = 0; i < startDay; i++) {
+            System.out.print("     ");
+        }
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            System.out.printf("%5d", day);
+            if ((startDay + day) % 7 == 0) {
+                System.out.println();
+            }
+        }
+        System.out.println();
+    }
+
+    static void addEvent(List<Event> eventList, int day, String description) {
+        eventList.add(new Event(day, description));
+    }
+
+    static void displayEvents(List<Event> eventList, int day) {
+        boolean found = false;
+        for (Event event : eventList) {
+            if (event.day == day) {
+                System.out.println("  Event on " + day + ": " + event.description);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("  No events on this day.");
+        }
+    }
+
+    public static void main(String[] args) {
+        int year = 2024, month = 1, choice;
+        List<Event> eventList = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            displayCalendar(year, month);
+
+            System.out.println("\nOptions:");
+            System.out.println("1. Previous Month");
+            System.out.println("2. Next Month");
+            System.out.println("3. Add Event");
+            System.out.println("4. View Events");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            if (choice == 1) {
+                month--;
+                if (month < 1) {
+                    month = 12;
+                    year--;
+                }
+            } else if (choice == 2) {
+                month++;
+                if (month > 12) {
+                    month = 1;
+                    year++;
+                }
+            } else if (choice == 3) {
+                System.out.print("Enter the day: ");
+                int day = scanner.nextInt();
+                System.out.print("Enter event description: ");
+                scanner.nextLine();
+                String description = scanner.nextLine();
+                addEvent(eventList, day, description);
+            } else if (choice == 4) {
+                System.out.print("Enter the day: ");
+                int day = scanner.nextInt();
+                displayEvents(eventList, day);
+            } else if (choice == 5) {
+                break;
+            } else {
+                System.out.println("Invalid choice. Try again.");
+            }
+        }
+
+        scanner.close();
+    }
+}
